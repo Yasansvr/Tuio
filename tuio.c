@@ -24,9 +24,7 @@ int main(){
     char *w1_help = " [ use <arrow keys> to move along paths or folders | <ESC> for exit ]";
     char *w2_help = " [ use <w,a,s,d> to scroll through file content ]";
     //rows and cols of whole screen ( delete )
-    getmaxyx(stdscr , row ,col); 
-    winCor w1 = {row,col/2,0,0};
-    winCor w2 = {row,col/2,col/2,0};
+    
     int ch;
     int selected_index = 0;
     int total_folders = 0;
@@ -40,7 +38,9 @@ int main(){
     noecho();
     while (!exit)
     {
-        
+        getmaxyx(stdscr , row ,col); 
+        winCor w1 = {row,col/2,0,0};
+        winCor w2 = {row,col/2,col/2,0};
     
         WINDOW *win = newwin(w1.height , w1.width , w1.start_y , w1.start_x);
         WINDOW *win1 = newwin(w2.height,w2.width,w2.start_y,w2.start_x);
