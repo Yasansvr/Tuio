@@ -22,7 +22,7 @@ This project is a minimal example of building a **terminal-based file manager** 
 - Open folders and move to parent directory
 - Preview readable text files
 - Detect binary files and prevent unreadable output
-- Scroll vertically and horizontally through file content
+- Scroll vertically and horizontally through file content using VIM key bindings
 - Simple ncurses-based UI with two panels
 
 ---
