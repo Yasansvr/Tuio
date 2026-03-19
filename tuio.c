@@ -18,6 +18,16 @@ typedef struct window
 
 int main(){
     initscr();
+    if (has_colors() == FALSE)
+    {
+        printf("your terminal does not support colors.");
+    }
+    start_color();
+    init_pair(1,COLOR_BLACK,COLOR_BLUE);
+    init_pair(2,COLOR_BLACK , COLOR_YELLOW);
+    
+
+
     char cwd[PATH_MAX];//current-dir
     char pwd[PATH_MAX];//parent-dir
     int row , col;
@@ -45,14 +55,20 @@ int main(){
         WINDOW *win = newwin(w1.height , w1.width , w1.start_y , w1.start_x);
         WINDOW *win1 = newwin(w2.height,w2.width,w2.start_y,w2.start_x);
         refresh();
+        
         box(win , 0 , 0);
         box(win1 , 0 , 0);
         
+        
         curs_set(0);
+        wattron(win, COLOR_PAIR(2));
         mvwprintw(win, 0, 1, " Tui File Explorer ");
+        wattroff(win, COLOR_PAIR(2));
         mvwprintw(win, w1.height-1, 1, " <%.*s> ", w1.width - 6, w1_help);
         mvwprintw(win1, w2.height-1, 1, " <%.*s> ", w2.width - 6, w2_help);
+        wattron(win1, COLOR_PAIR(2));
         mvwprintw(win1,0,1," <cat observation> ");
+        wattroff(win1, COLOR_PAIR(2));
 
         //printing current location
         if (getcwd(cwd,sizeof(cwd))!= NULL)
@@ -91,7 +107,7 @@ int main(){
 
                         if (count >= start_item && count < start_item + max_visible_items) {
                             if (count == selected_index) {
-                                wattron(win, A_REVERSE);
+                                wattron(win, COLOR_PAIR(1));
                             }
 
                             int max_name_len = w1.width - j - 9;
@@ -103,7 +119,7 @@ int main(){
                             }
 
                             if (count == selected_index) {
-                                wattroff(win, A_REVERSE);
+                                wattroff(win, COLOR_PAIR(1));
                             }
                         }
                         count++;
@@ -134,7 +150,7 @@ int main(){
                     } else {
                         rewind(f);
                         char buf[1024];
-                        int content_line = 1;
+                        int content_line = 2;
                         int current_line = 0;
                         while (fgets(buf, sizeof(buf), f) && content_line < w2.height - 1) {
                             buf[strcspn(buf, "\n")] = 0;
