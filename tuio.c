@@ -22,7 +22,7 @@ int main(){
     char pwd[PATH_MAX];//parent-dir
     int row , col;
     char *w1_help = " [ use <arrow keys> to move along paths or folders | <ESC> for exit ]";
-    char *w2_help = " [ use <w,a,s,d> to scroll through file content ]";
+    char *w2_help = " [ use <w,a,s,d> Or vim key binding <H,J,K,L >to scroll through file content ]";
     //rows and cols of whole screen ( delete )
     
     int ch;
@@ -176,13 +176,13 @@ int main(){
             if (selected_index > 0) { selected_index--; win1_scroll_y = 0; win1_scroll_x = 0; }
         } else if (ch == KEY_DOWN) {
             if (selected_index < total_folders - 1) { selected_index++; win1_scroll_y = 0; win1_scroll_x = 0; }
-        } else if (ch == 'w') {
+        } else if (ch == 'w' || ch == 'k') {
             if (win1_scroll_y > 0) win1_scroll_y = win1_scroll_y - 5;
-        } else if (ch == 's') {
+        } else if (ch == 's' || ch == 'j') {
             win1_scroll_y = win1_scroll_y + 5;
-        } else if (ch == 'a') {
+        } else if (ch == 'a' || ch == 'h') {
             if (win1_scroll_x > 0) win1_scroll_x = win1_scroll_x - 1;
-        } else if (ch == 'd') {
+        } else if (ch == 'd' || ch == 'l') {
             win1_scroll_x++;
         }
         if(ch == KEY_LEFT){
