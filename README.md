@@ -42,9 +42,14 @@ sudo apt install libncurses5-dev libncursesw5-dev
 
 ---
 
-## compilation and running 
+## compilation (for any additional self-customization)
 
 ```
-gcc tuio.c -o tuio -lncurses && ./tuio
+gcc tuio.c -o tuio -lncurses
+```
+---
+## running
+```
+./tuio
 ```
 
