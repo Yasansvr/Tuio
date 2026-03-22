@@ -208,7 +208,7 @@ int main(){
             {
                 selected_index = 0;
             }
-            
+
         } else if (ch == 'w' || ch == 'k') {
             if (win1_scroll_y > 0) win1_scroll_y = win1_scroll_y - 5;
         } else if (ch == 's' || ch == 'j') {
@@ -219,6 +219,13 @@ int main(){
             win1_scroll_x++;
         }
         if(ch == KEY_LEFT){
+            char old_dir_name[PATH_MAX];
+            old_dir_name[0] = '\0';
+            char *last_slash_cwd = strrchr(cwd, '/');
+            if (last_slash_cwd != NULL && *(last_slash_cwd + 1) != '\0') {
+                strcpy(old_dir_name, last_slash_cwd + 1);
+            }
+
             strcpy(pwd , cwd);
             char *last_slash = strrchr(pwd , '/');
             if (last_slash != NULL && last_slash != pwd)
@@ -229,7 +236,29 @@ int main(){
                 strcpy(cwd, "/"); 
             }
             chdir(cwd);
+
             selected_index = 0;
+            if (old_dir_name[0] != '\0') {
+                struct dirent **namelist;
+                int n_files = scandir(".", &namelist, NULL, alphasort);
+                if (n_files >= 0) {
+                    int count_idx = 0;
+                    for (int i = 0; i < n_files; i++) {
+                        struct dirent *entry = namelist[i];
+                        if (entry->d_type == DT_DIR || entry->d_type == DT_REG) {
+                            if (strcmp(entry->d_name, "..") != 0 && strcmp(entry->d_name, ".") != 0) {
+                                if (strcmp(entry->d_name, old_dir_name) == 0) {
+                                    selected_index = count_idx;
+                                }
+                                count_idx++;
+                            }
+                        }
+                        free(namelist[i]);
+                    }
+                    free(namelist);
+                }
+            }
+
             win1_scroll_y = 0;
             win1_scroll_x = 0;
         } else if (ch == '\n' || ch == KEY_ENTER || ch == KEY_RIGHT) {
