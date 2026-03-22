@@ -31,8 +31,8 @@ int main(){
     char cwd[PATH_MAX];//current-dir
     char pwd[PATH_MAX];//parent-dir
     int row , col;
-    char *w1_help = " [ use <arrow keys> to move along paths or folders | <q> for quit ]";
-    char *w2_help = " [ use <w,a,s,d> Or vim key binding <H,J,K,L >to scroll through file content ]";
+    char *w1_help = "( LEFT / RIGHT : cd )( UP / DOWN : FOLDER/FILE SELECTION )( SHIFT + UP/DOWN : SELECTION + 3 )( <q> : QUIT )";
+    char *w2_help = "( <w/a/s/d> OR <H/J/K/L> : SCROLLING THROUGH A TEXT FILE )";
     //rows and cols of whole screen ( delete )
     
     int ch;
@@ -64,11 +64,19 @@ int main(){
         wattron(win, COLOR_PAIR(2));
         mvwprintw(win, 0, 1, " Tui File Explorer ");
         wattroff(win, COLOR_PAIR(2));
-        mvwprintw(win, w1.height-1, 1, " <%.*s> ", w1.width - 6, w1_help);
-        mvwprintw(win1, w2.height-1, 1, " <%.*s> ", w2.width - 6, w2_help);
+
+        wattron(win,A_REVERSE);
+        mvwprintw(win, w1.height-1, (w1.width-strlen(w1_help))/2, "%.*s", w1.width - 6, w1_help);
+        wattroff(win,A_REVERSE);
+
+        wattron(win1,A_REVERSE);
+        mvwprintw(win1, w2.height-1, (w2.width-strlen(w2_help))/2, "%.*s", w2.width - 6, w2_help);
+        wattroff(win1,A_REVERSE);
+
         wattron(win1, COLOR_PAIR(2));
         mvwprintw(win1,0,1," <cat observation> ");
         wattroff(win1, COLOR_PAIR(2));
+
         int count = 0;
         //printing current location
         if (getcwd(cwd,sizeof(cwd))!= NULL)
@@ -186,9 +194,11 @@ int main(){
 
 
         ch = getch();
-        if (ch == 'q') {
+        if (ch == 'q' || ch == 'Q') {
             exit = true;
         } else if (ch == KEY_UP) {
+            
+
             if (selected_index > 0) { 
                 selected_index--;
                 win1_scroll_y = 0;
@@ -198,8 +208,21 @@ int main(){
             {
                 selected_index = count-1;
             }
-            
-        } else if (ch == KEY_DOWN) {
+        }else if(ch == KEY_SR){
+                selected_index -=3;
+                if (selected_index<0)
+                {
+                    selected_index = 0;
+                }
+                
+        }else if(ch == KEY_SF){
+                selected_index +=3;
+                if (selected_index>=count)
+                {
+                    selected_index = count-1;
+                }
+        }
+        else if (ch == KEY_DOWN) {
             if (selected_index < total_folders - 1) { 
                 selected_index++; 
                 win1_scroll_y = 0; 
@@ -208,8 +231,7 @@ int main(){
             {
                 selected_index = 0;
             }
-
-        } else if (ch == 'w' || ch == 'k') {
+        }else if (ch == 'w' || ch == 'k') {
             if (win1_scroll_y > 0) win1_scroll_y = win1_scroll_y - 5;
         } else if (ch == 's' || ch == 'j') {
             win1_scroll_y = win1_scroll_y + 5;
@@ -274,14 +296,8 @@ int main(){
         delwin(win);
         delwin(win1);
     }
-
-    
-
-
-
     //printing size of screen based on lines and chars : mine 52 , 238
     //printw("rows : %d\ncols : %d",row,col); 
-    
     endwin();
 
     
