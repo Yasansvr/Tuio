@@ -31,7 +31,7 @@ int main(){
     char cwd[PATH_MAX];//current-dir
     char pwd[PATH_MAX];//parent-dir
     int row , col;
-    char *w1_help = " [ use <arrow keys> to move along paths or folders | <ESC> for exit ]";
+    char *w1_help = " [ use <arrow keys> to move along paths or folders | <q> for quit ]";
     char *w2_help = " [ use <w,a,s,d> Or vim key binding <H,J,K,L >to scroll through file content ]";
     //rows and cols of whole screen ( delete )
     
@@ -46,7 +46,7 @@ int main(){
     keypad(stdscr , TRUE);
     cbreak();
     noecho();
-    while (!exit)
+    while (exit == false)
     {
         getmaxyx(stdscr , row ,col); 
         winCor w1 = {row,col/2,0,0};
@@ -186,7 +186,7 @@ int main(){
 
 
         ch = getch();
-        if (ch == 27) {
+        if (ch == 'q') {
             exit = true;
         } else if (ch == KEY_UP) {
             if (selected_index > 0) { selected_index--; win1_scroll_y = 0; win1_scroll_x = 0; }
@@ -235,7 +235,7 @@ int main(){
 
     //printing size of screen based on lines and chars : mine 52 , 238
     //printw("rows : %d\ncols : %d",row,col); 
-    getchar();
+    
     endwin();
 
     
