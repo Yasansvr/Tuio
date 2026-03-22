@@ -69,7 +69,7 @@ int main(){
         wattron(win1, COLOR_PAIR(2));
         mvwprintw(win1,0,1," <cat observation> ");
         wattroff(win1, COLOR_PAIR(2));
-
+        int count = 0;
         //printing current location
         if (getcwd(cwd,sizeof(cwd))!= NULL)
         {
@@ -79,7 +79,7 @@ int main(){
             int j = 2;
             struct dirent **namelist;
             int n;
-            int count = 0;
+            
 
             n = scandir(".", &namelist, NULL, alphasort);
             if (n < 0) {
@@ -189,9 +189,26 @@ int main(){
         if (ch == 'q') {
             exit = true;
         } else if (ch == KEY_UP) {
-            if (selected_index > 0) { selected_index--; win1_scroll_y = 0; win1_scroll_x = 0; }
+            if (selected_index > 0) { 
+                selected_index--;
+                win1_scroll_y = 0;
+                win1_scroll_x = 0;
+                
+            }else
+            {
+                selected_index = count-1;
+            }
+            
         } else if (ch == KEY_DOWN) {
-            if (selected_index < total_folders - 1) { selected_index++; win1_scroll_y = 0; win1_scroll_x = 0; }
+            if (selected_index < total_folders - 1) { 
+                selected_index++; 
+                win1_scroll_y = 0; 
+                win1_scroll_x = 0; 
+            }else
+            {
+                selected_index = 0;
+            }
+            
         } else if (ch == 'w' || ch == 'k') {
             if (win1_scroll_y > 0) win1_scroll_y = win1_scroll_y - 5;
         } else if (ch == 's' || ch == 'j') {
