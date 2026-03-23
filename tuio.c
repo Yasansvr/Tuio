@@ -34,6 +34,7 @@ int main(){
     char *w1_help = "( LEFT / RIGHT : cd )( UP / DOWN : FOLDER/FILE SELECTION )( SHIFT + UP/DOWN : SELECTION + 3 )( <q> : QUIT )";
     char *w2_help = "( <w/a/s/d> OR <H/J/K/L> : SCROLLING THROUGH A TEXT FILE )";
     //rows and cols of whole screen ( delete )
+    char *supphelp = "( DECREASE TERMINAL ZOOM SCALE TO SEE HELP!:CTRL + +/-)";
     
     int ch;
     int selected_index = 0;
@@ -58,6 +59,13 @@ int main(){
         
         box(win , 0 , 0);
         box(win1 , 0 , 0);
+
+        if (strlen(w1_help) >= w1.width)
+        {
+            wattron(win,A_REVERSE);
+            mvwprintw(win,w1.height-1,(w1.width - strlen(supphelp))/2 , "%.*s" , w1.width-6 , supphelp);
+            wattroff(win,A_REVERSE);
+        }
         
         
         curs_set(0);
@@ -69,6 +77,8 @@ int main(){
         mvwprintw(win, w1.height-1, (w1.width-strlen(w1_help))/2, "%.*s", w1.width - 6, w1_help);
         wattroff(win,A_REVERSE);
 
+        
+
         wattron(win1,A_REVERSE);
         mvwprintw(win1, w2.height-1, (w2.width-strlen(w2_help))/2, "%.*s", w2.width - 6, w2_help);
         wattroff(win1,A_REVERSE);
@@ -77,6 +87,7 @@ int main(){
         mvwprintw(win1,0,1," <cat observation> ");
         wattroff(win1, COLOR_PAIR(2));
 
+        
         int count = 0;
         //printing current location
         if (getcwd(cwd,sizeof(cwd))!= NULL)
@@ -186,13 +197,7 @@ int main(){
 
         
 
-
-
-
-
-
-
-
+// KEY TRIGGERS
         ch = getch();
         if (ch == 'q' || ch == 'Q') {
             exit = true;
