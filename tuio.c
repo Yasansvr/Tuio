@@ -43,7 +43,7 @@ int main(){
     char cwd[PATH_MAX];//current-dir
     char pwd[PATH_MAX];//parent-dir
     int row , col;
-    char *w1_help = "( LEFT/RIGHT : cd | UP/DOWN : FOLDER/FILE SELECTION | SHIFT+UP/DOWN : SELECTION + 3 | <s> : search | <q> : QUIT )";
+    char *w1_help = "( LEFT/RIGHT : cd | UP/DOWN : FOLDER/FILE SELECTION | SHIFT+UP/DOWN : SELECTION + 3 | <x> : search | <q> : QUIT )";
     char *w2_help = "( <w/a/s/d> OR <H/J/K/L> : SCROLLING THROUGH A TEXT FILE )";
     //rows and cols of whole screen ( delete )
     char *supphelp = "( DECREASE TERMINAL ZOOM SCALE TO SEE HELP!:CTRL +/-)";
@@ -315,7 +315,7 @@ int main(){
             }
         }
 
-        if (ch == 's' || ch == 'S') 
+        if (ch == 'x' || ch == 'X') 
         {
             winCor search = {3, w1.width-4, 2, row-5};
             WINDOW *search_win = newwin(search.height, search.width, search.start_y, search.start_x);
