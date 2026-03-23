@@ -5,7 +5,19 @@
 #include<ncurses.h>
 #include<limits.h>
 #include<string.h>
+#include<sys/stat.h>
 
+int get_item_type(struct dirent *entry) {
+    int type = entry->d_type;
+    if (type == DT_LNK || type == DT_UNKNOWN) {
+        struct stat st;
+        if (stat(entry->d_name, &st) == 0) {
+            if (S_ISDIR(st.st_mode)) type = DT_DIR;
+            else if (S_ISREG(st.st_mode)) type = DT_REG;
+        }
+    }
+    return type;
+}
 
 typedef struct window
 {
@@ -31,10 +43,14 @@ int main(){
     char cwd[PATH_MAX];//current-dir
     char pwd[PATH_MAX];//parent-dir
     int row , col;
-    char *w1_help = "( LEFT / RIGHT : cd )( UP / DOWN : FOLDER/FILE SELECTION )( SHIFT + UP/DOWN : SELECTION + 3 )( <q> : QUIT )";
+    char *w1_help = "( LEFT/RIGHT : cd | UP/DOWN : FOLDER/FILE SELECTION | SHIFT+UP/DOWN : SELECTION + 3 | <s> : search | <q> : QUIT )";
     char *w2_help = "( <w/a/s/d> OR <H/J/K/L> : SCROLLING THROUGH A TEXT FILE )";
     //rows and cols of whole screen ( delete )
-    char *supphelp = "( DECREASE TERMINAL ZOOM SCALE TO SEE HELP!:CTRL + +/-)";
+    char *supphelp = "( DECREASE TERMINAL ZOOM SCALE TO SEE HELP!:CTRL +/-)";
+
+    //SEARCH
+    char searchInput[100];
+    bool Search = true;
     
     int ch;
     int selected_index = 0;
@@ -51,7 +67,7 @@ int main(){
     {
         getmaxyx(stdscr , row ,col); 
         winCor w1 = {row,col/2,0,0};
-        winCor w2 = {row,col/2,col/2,0};
+        winCor w2 = {row,col/2,col/2,0}; 
     
         WINDOW *win = newwin(w1.height , w1.width , w1.start_y , w1.start_x);
         WINDOW *win1 = newwin(w2.height,w2.width,w2.start_y,w2.start_x);
@@ -67,7 +83,7 @@ int main(){
             wattroff(win,A_REVERSE);
         }
         
-        
+    
         curs_set(0);
         wattron(win, COLOR_PAIR(2));
         mvwprintw(win, 0, 1, " Tui File Explorer ");
@@ -113,7 +129,8 @@ int main(){
 
                 for (int i = 0; i < n; i++) {
                     struct dirent *entry = namelist[i];
-                    if (entry->d_type == DT_DIR || entry->d_type == DT_REG) {
+                    int type = get_item_type(entry);
+                    if (type == DT_DIR || type == DT_REG) {
                         if (strcmp(entry->d_name, "..") == 0 || strcmp(entry->d_name, ".") == 0) {
                             free(namelist[i]);
                             continue;
@@ -121,7 +138,7 @@ int main(){
 
                         if (count == selected_index) {
                             strcpy(selected_folder_name, entry->d_name);
-                            selected_item_type = entry->d_type;
+                            selected_item_type = type;
                         }
 
                         if (count >= start_item && count < start_item + max_visible_items) {
@@ -131,7 +148,7 @@ int main(){
 
                             int max_name_len = w1.width - j - 9;
                             if (max_name_len < 0) max_name_len = 0;
-                            if (entry->d_type == DT_DIR) {
+                            if (type == DT_DIR) {
                                 mvwprintw(win, line++, j, " |--> %.*s", max_name_len, entry->d_name);
                             } else {
                                 mvwprintw(win, line++, j, " |--(%.*s)", max_name_len, entry->d_name);
@@ -197,7 +214,7 @@ int main(){
 
         
 
-// KEY TRIGGERS
+        // KEY TRIGGERS
         ch = getch();
         if (ch == 'q' || ch == 'Q') {
             exit = true;
@@ -272,7 +289,8 @@ int main(){
                     int count_idx = 0;
                     for (int i = 0; i < n_files; i++) {
                         struct dirent *entry = namelist[i];
-                        if (entry->d_type == DT_DIR || entry->d_type == DT_REG) {
+                        int type = get_item_type(entry);
+                        if (type == DT_DIR || type == DT_REG) {
                             if (strcmp(entry->d_name, "..") != 0 && strcmp(entry->d_name, ".") != 0) {
                                 if (strcmp(entry->d_name, old_dir_name) == 0) {
                                     selected_index = count_idx;
@@ -296,6 +314,54 @@ int main(){
                 win1_scroll_x = 0;
             }
         }
+
+        if (ch == 's' || ch == 'S') 
+        {
+            winCor search = {3, w1.width-4, 2, row-5};
+            WINDOW *search_win = newwin(search.height, search.width, search.start_y, search.start_x);
+            wbkgd(search_win, COLOR_PAIR(1));
+            box(search_win, 0, 0);
+            
+            mvwprintw(search_win, 0, 1, "ENTER FILE NAME (PRESS ENTER ): ");
+            wrefresh(search_win);
+            echo();             
+            curs_set(1);
+            searchInput[0] = '\0';
+            mvwgetnstr(search_win, 1, 1, searchInput, 99); // Get string from user
+            noecho();
+            if (strlen(searchInput) > 0)
+            {
+                struct dirent **namelist;
+                int n_files = scandir(".", &namelist, NULL, alphasort);
+                if (n_files >= 0) {
+                    int count_idx = 0;
+                    for (int i = 0; i < n_files; i++) {
+                        struct dirent *entry = namelist[i];
+                        int type = get_item_type(entry);
+                        if (type == DT_DIR || type == DT_REG) {
+                            if (strcmp(entry->d_name, "..") != 0 && strcmp(entry->d_name, ".") != 0) {
+                                if (strcmp(entry->d_name, searchInput) == 0) {
+                                    selected_index = count_idx;
+                                }
+                                count_idx++;
+                            }
+                        }
+                        free(namelist[i]);
+                    }
+                    free(namelist);
+                }
+
+            }
+            // 3. Cleanup (Optional but good practice)
+            wclear(search_win);
+            wrefresh(search_win);
+            delwin(search_win);
+        }
+        
+        
+        
+        
+            
         
         
         delwin(win);
