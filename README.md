@@ -33,8 +33,14 @@ This project is a minimal example of building a **terminal-based file manager** 
 - `ncurses` library
 
 ---
+## Install dependencies ( for macOS and Unix-like OS)
+!! It may have some Problems. In the case of any error please open issues !!
+```
+chmod +x ./install.sh && ./install.sh
+```
+---
 
-## Installing ncurses 
+## Installing ncurses (For debian based OS)
 
 ```bash
 sudo apt install libncurses5-dev libncursesw5-dev
